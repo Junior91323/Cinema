@@ -1,0 +1,31 @@
+﻿@model Cinema.Models.MovieVM
+@{
+    ViewBag.Title = "Info";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Info</h2>
+
+<div class="row movie">
+    <div class="col-md-3">
+       
+        <img src="@Model.PosterURL" class="img-responsive" />
+        <span class="techInfo">
+            @Model.ModifyDate.ToShortDateString() - @Model.User
+        </span>
+    </div>
+
+    <div class="col-md-9">
+        <p class="lead">@Model.Title</p>
+        <p>@Html.LabelFor(m=>m.Producer)  @Model.Producer</p>
+        <p>@Html.LabelFor(m => m.Year)  @Model.Year.ToShortDateString()</p>
+        <p>@Html.LabelFor(m => m.Description)  @Model.Description</p>
+    </div>
+
+    @if (Request.IsAuthenticated && ViewBag.UserId == Model.UserId)
+    {
+        @Html.ActionLink("Edit", "Edit", "Movies", new { id = Model.Id }, new { Class = "btn btn-primary" });
+        @Html.ActionLink("Delete", "Delete", "Movies", new { id = Model.Id }, new { Class = "btn btn-danger", onclick = "return confirm('Are you sure you wish to delete this article?');" });
+    }
+
+</div>

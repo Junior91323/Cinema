@@ -1,0 +1,35 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+.movieItem {width:250px; display:block; float:left; position:relative; margin-left:25px; margin-bottom:25px;}
+.movieItem .image { width:250px; height:200px; border:1px solid #c6c6c6;}
+.movieItem .image img{width:250px; height:200px;}
+.movieItem .content { width:100%;  position:absolute; background:#000000; opacity:0.7; top:0px; left:0px; font-size:20px; color:#ffffff; text-align:center; padding: 10px 10px; display:none;}
+.movieItem .content .text{ z-index:999;}
+.movieItem a:hover .content{ display:block;}
+.movieItem .btn,.movie .btn{margin:5px 5px 0px 5px;}
+.pagination{margin:auto; margin-top:30px;}
+.clear{clear:both;}
+.techInfo{font-size:12px; color:#808080;}
+form img#user_img{cursor:pointer;}
