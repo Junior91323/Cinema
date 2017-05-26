@@ -27,32 +27,29 @@ namespace Cinema.Controllers
             DB = db;
         }
 
-        //public ActionResult Index()
-        //{
-        //    var items = DB.MovieService.GetMovies().ToList();
-        //    Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
-        //    var res = Mapper.Map<IEnumerable<MovieDTO>, IEnumerable<MovieVM>>(items);
-
-        //    if (Request.IsAuthenticated)
-        //        ViewBag.UserId = User.Identity.GetUserId();
-
-        //    return View(res);
-        //}
         public ActionResult Index(int page = 1)
         {
-            int total = 0;
-            var items = DB.MovieService.GetMovies(ApplicationSettings.MoviesPageSize, page, out total).ToList();
-            Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
-            var res = Mapper.Map<IEnumerable<MovieDTO>, IEnumerable<MovieVM>>(items);
+            try
+            {
+                int total = 0;
+                var items = DB.MovieService.GetMovies(ApplicationSettings.MoviesPageSize, page, out total).ToList();
+                Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
+                var res = Mapper.Map<IEnumerable<MovieDTO>, IEnumerable<MovieVM>>(items);
 
-            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = ApplicationSettings.MoviesPageSize, TotalItems = total };
+                PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = ApplicationSettings.MoviesPageSize, TotalItems = total };
 
-            IndexViewModel<MovieVM> ivm = new IndexViewModel<MovieVM> { PageInfo = pageInfo, Items = res };
+                IndexViewModel<MovieVM> ivm = new IndexViewModel<MovieVM> { PageInfo = pageInfo, Items = res };
 
-            if (Request.IsAuthenticated)
-                ViewBag.UserId = User.Identity.GetUserId();
+                if (Request.IsAuthenticated)
+                    ViewBag.UserId = User.Identity.GetUserId();
 
-            return View(ivm);
+                return View(ivm);
+
+            }
+            catch
+            {
+                return new HttpStatusCodeResult(500);
+            }
         }
         [HttpGet]
         [Authorize]
@@ -64,89 +61,122 @@ namespace Cinema.Controllers
         [Authorize]
         public ActionResult Create(MovieVM model, HttpPostedFileBase image)
         {
-
-            if (!ModelState.IsValid)
+            try
             {
-                return View(model);
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                Mapper.Initialize(cfg => { cfg.CreateMap<MovieVM, MovieDTO>(); });
+                MovieDTO res = Mapper.Map<MovieVM, MovieDTO>(model);
+                res.UserId = User.Identity.GetUserId();
+
+                if (image != null)
+                {
+                    res.PosterURL = SaveImage(image);
+                }
+
+                DB.MovieService.CreateMovie(res);
+
+                return RedirectToAction("Index");
             }
-
-            Mapper.Initialize(cfg => { cfg.CreateMap<MovieVM, MovieDTO>(); });
-            MovieDTO res = Mapper.Map<MovieVM, MovieDTO>(model);
-            res.UserId = User.Identity.GetUserId();
-
-            if (image != null)
+            catch
             {
-                res.PosterURL = SaveImage(image);
+                return new HttpStatusCodeResult(500);
             }
-
-            DB.MovieService.CreateMovie(res);
-
-            return RedirectToAction("Index");
         }
         [Authorize]
         public ActionResult Edit(int id)
         {
+            try
+            {
+                var item = DB.MovieService.GetMovie(id);
 
-            var item = DB.MovieService.GetMovie(id);
+                if (item == null)
+                    return HttpNotFound();
 
-            if (item == null)
-                return HttpNotFound();
+                Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
+                MovieVM res = Mapper.Map<MovieDTO, MovieVM>(item);
 
-            Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
-            MovieVM res = Mapper.Map<MovieDTO, MovieVM>(item);
-
-            return View(res);
+                return View(res);
+            }
+            catch
+            {
+                return new HttpStatusCodeResult(500);
+            }
         }
 
         [HttpPost]
         [Authorize]
         public ActionResult Edit(MovieVM model, HttpPostedFileBase image)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return View(model);
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                Mapper.Initialize(cfg => { cfg.CreateMap<MovieVM, MovieDTO>(); });
+                MovieDTO res = Mapper.Map<MovieVM, MovieDTO>(model);
+
+                if (image != null)
+                {
+                    res.PosterURL = SaveImage(image);
+                }
+
+                DB.MovieService.UpdateMovie(res);
+
+                return RedirectToAction("Index");
             }
-
-            Mapper.Initialize(cfg => { cfg.CreateMap<MovieVM, MovieDTO>(); });
-            MovieDTO res = Mapper.Map<MovieVM, MovieDTO>(model);
-
-            if (image != null)
+            catch
             {
-                res.PosterURL = SaveImage(image);
+                return new HttpStatusCodeResult(500);
             }
-
-            DB.MovieService.UpdateMovie(res);
-
-            return RedirectToAction("Index");
         }
 
         public ActionResult Delete(int id)
         {
-            var item = DB.MovieService.GetMovie(id);
+            try
+            {
+                var item = DB.MovieService.GetMovie(id);
 
-            if (item == null)
-                return HttpNotFound();
+                if (item == null)
+                    return HttpNotFound();
 
-            DB.MovieService.DeleteMovie(id);
+                DB.MovieService.DeleteMovie(id);
 
-            return RedirectToAction("Index");
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return new HttpStatusCodeResult(500);
+            }
         }
 
         public ActionResult Info(int id)
         {
-            var item = DB.MovieService.GetMovie(id);
+            try
+            {
+                var item = DB.MovieService.GetMovie(id);
 
-            if (item == null)
-                return HttpNotFound();
+                if (item == null)
+                    return HttpNotFound();
 
-            if (Request.IsAuthenticated)
-                ViewBag.UserId = User.Identity.GetUserId();
+                if (Request.IsAuthenticated)
+                    ViewBag.UserId = User.Identity.GetUserId();
 
-            Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
-            MovieVM res = Mapper.Map<MovieDTO, MovieVM>(item);
+                Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
+                MovieVM res = Mapper.Map<MovieDTO, MovieVM>(item);
 
-            res.User = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(res.UserId).UserName;
-            return View(res);
+                res.User = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(res.UserId).UserName;
+                return View(res);
+            }
+            catch
+            {
+                return new HttpStatusCodeResult(500);
+            }
         }
 
         string SaveImage(HttpPostedFileBase image)
