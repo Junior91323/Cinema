@@ -71,20 +71,17 @@ namespace Cinema.BLL.Services
 
         public MovieDTO GetMovie(int id)
         {
-            try
-            {
+
                 var item = DB.Movies.Get(id);
 
-                if (item == null)
-                    throw new NullReferenceException(String.Format("Item with id: {0} is not found!", id));
-
+            if (item != null)
+            {
                 Mapper.Initialize(cfg => { cfg.CreateMap<Movie, MovieDTO>(); });
                 return Mapper.Map<Movie, MovieDTO>(item);
             }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex.InnerException);
-            }
+
+            return null;
+
         }
 
         public IEnumerable<MovieDTO> GetMovies()

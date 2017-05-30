@@ -76,9 +76,15 @@ namespace Cinema.Controllers
                 if (!ApplicationSettings.AllowedExtensions.Contains(Path.GetExtension(image.FileName).ToLower()))
                     ModelState.AddModelError("", "Invalid file extension. Acceptable ");
 
-
             if (ModelState.IsValid)
             {
+                var item = DB.MovieService.GetMovie(model.Id);
+                if (item != null)
+                {
+                    if (item.UserId != User.Identity.GetUserId())
+                        return RedirectToAction("Index");
+                }
+
                 Mapper.Initialize(cfg => { cfg.CreateMap<MovieVM, MovieDTO>(); });
                 MovieDTO res = Mapper.Map<MovieVM, MovieDTO>(model);
                 res.UserId = User.Identity.GetUserId();
@@ -86,7 +92,7 @@ namespace Cinema.Controllers
                 {
                     res.PosterURL = SaveImage(image); ;
                 }
-                if (res.Id == 0)
+                if (item == null)
                     DB.MovieService.CreateMovie(res);
                 else
                     DB.MovieService.UpdateMovie(res);
@@ -131,7 +137,7 @@ namespace Cinema.Controllers
         //    }
         //    return View(model);
         //}
-        
+
 
 
         //[Authorize]

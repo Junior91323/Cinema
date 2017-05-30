@@ -12,7 +12,7 @@
     <div class="col-md-12">
         @foreach (var item in Model)
         {
-            <div class="movieItem">
+            <div class="movieItem @(Request.IsAuthenticated ? "manage" : "")">
                 <a href="Movies/Info/@item.Id" class="img-responsive image">
 
                     <img src="@item.PosterURL" width="250" height="200" />

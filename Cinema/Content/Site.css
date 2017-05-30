@@ -22,6 +22,7 @@ select,
 textarea {
     max-width: 280px;
 }
+.movieItem.manage{height:240px;}
 .movieItem {width:250px; display:block; float:left; position:relative; margin-left:25px; margin-bottom:25px;}
 .movieItem .image { width:250px; height:200px; border:1px solid #c6c6c6;}
 .movieItem .image img{width:250px; height:200px;}
