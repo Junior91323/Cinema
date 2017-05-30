@@ -7,13 +7,14 @@
 
     <h2>Create</h2>
 
-    @using (Html.BeginForm("Create", "Movies", FormMethod.Post, new { Class = "form-horizontal", enctype = "multipart/form-data" }))
+    @using (Html.BeginForm("Update", "Movies", FormMethod.Post, new { Class = "form-horizontal", enctype = "multipart/form-data" }))
     {
+        @Html.AntiForgeryToken();
+
         <div class="form-group">
             <label class="col-sm-2 control-label" for="txtTitle">@Html.LabelFor(m => m.Title)</label>
             <div class="col-sm-10">
-
-                <input type="text" name="Title" class="form-control" id="txtTitle" placeholder="" />
+                <input type="text" name="Title" class="form-control" id="txtTitle"  placeholder="" />
                 @Html.ValidationMessageFor(m => m.Title)
             </div>
 
@@ -22,7 +23,7 @@
             <label class="col-sm-2 control-label" for="txtYear">@Html.LabelFor(m => m.Year)</label>
             <div class="col-sm-10">
 
-                <input type="date" name="Year" class="form-control" id="txtYear" placeholder="" />
+                <input type="date" name="Year" class="form-control"  id="txtYear" placeholder="" />
                 @Html.ValidationMessageFor(m => m.Year)
             </div>
 
@@ -31,7 +32,7 @@
             <label class="col-sm-2 control-label" for="txtProducer">@Html.LabelFor(m => m.Producer)</label>
             <div class="col-sm-10">
 
-                <input type="text" name="Producer" class="form-control" id="txtProducer" placeholder="" />
+                <input type="text" name="Producer" class="form-control"   id="txtProducer" placeholder="" />
                 @Html.ValidationMessageFor(m => m.Producer)
             </div>
 
@@ -54,7 +55,7 @@
                 <input name="image" type="file" id="file" onchange="show(this)" />
             </div>
         </div>
-
+        <p>@Html.ValidationSummary(true)</p>
         <p>
             <input type="submit" value="Add" />
         </p>

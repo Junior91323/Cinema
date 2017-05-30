@@ -23,7 +23,7 @@
                 <ul class="nav navbar-nav">
                     @if (Request.IsAuthenticated)
                     {
-                        <li>@Html.ActionLink("Add movie", "Create", "Movies")</li>
+                        <li>@Html.ActionLink("Add movie", "Update", "Movies")</li>
                     }
                 </ul>
                 @Html.Partial("_LoginPartial")

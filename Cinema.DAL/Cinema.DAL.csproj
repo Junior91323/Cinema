@@ -67,6 +67,10 @@
     <Compile Include="Migrations\201705261141382_SQL_Movie_Users_FK.Designer.cs">
       <DependentUpon>201705261141382_SQL_Movie_Users_FK.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201705300742404_DateChangeType.cs" />
+    <Compile Include="Migrations\201705300742404_DateChangeType.Designer.cs">
+      <DependentUpon>201705300742404_DateChangeType.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\MovieRepository.cs" />
@@ -85,6 +89,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201705261141382_SQL_Movie_Users_FK.resx">
       <DependentUpon>201705261141382_SQL_Movie_Users_FK.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201705300742404_DateChangeType.resx">
+      <DependentUpon>201705300742404_DateChangeType.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

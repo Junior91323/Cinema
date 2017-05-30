@@ -15,6 +15,8 @@ using System.Drawing.Imaging;
 using Microsoft.AspNet.Identity.Owin;
 using System.Web.Helpers;
 using Cinema.Utils;
+using System.Runtime.CompilerServices;
+using PagedList;
 
 namespace Cinema.Controllers
 {
@@ -29,178 +31,202 @@ namespace Cinema.Controllers
 
         public ActionResult Index(int page = 1)
         {
-            try
-            {
-                int total = 0;
-                var items = DB.MovieService.GetMovies(ApplicationSettings.MoviesPageSize, page, out total).ToList();
-                Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
-                var res = Mapper.Map<IEnumerable<MovieDTO>, IEnumerable<MovieVM>>(items);
 
-                PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = ApplicationSettings.MoviesPageSize, TotalItems = total };
+            //int total = 0;
+            //var items = DB.MovieService.GetMovies(ApplicationSettings.MoviesPageSize, page, out total).ToList();
+            var items = DB.MovieService.GetMovies();
+            Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
+            var res = Mapper.Map<IEnumerable<MovieDTO>, IEnumerable<MovieVM>>(items);
 
-                IndexViewModel<MovieVM> ivm = new IndexViewModel<MovieVM> { PageInfo = pageInfo, Items = res };
+            //PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = ApplicationSettings.MoviesPageSize, TotalItems = total };
 
-                if (Request.IsAuthenticated)
-                    ViewBag.UserId = User.Identity.GetUserId();
+            //IndexViewModel<MovieVM> ivm = new IndexViewModel<MovieVM> { PageInfo = pageInfo, Items = res };
 
-                return View(ivm);
+            if (Request.IsAuthenticated)
+                ViewBag.UserId = User.Identity.GetUserId();
 
-            }
-            catch
-            {
-                return new HttpStatusCodeResult(500);
-            }
+            return View(res.ToPagedList(page, ApplicationSettings.MoviesPageSize));
+
         }
-        [HttpGet]
-        [Authorize]
-        public ActionResult Create()
+        public ActionResult Update(int? id)
         {
+            if (id != null)
+            {
+                var item = DB.MovieService.GetMovie((int)id);
+                if (item != null)
+                {
+                    Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
+                    MovieVM res = Mapper.Map<MovieDTO, MovieVM>(item);
+
+                    if (res.UserId != User.Identity.GetUserId())
+                        return RedirectToAction("Index");
+
+                    return View(res);
+                }
+            }
             return View();
         }
         [HttpPost]
         [Authorize]
-        public ActionResult Create(MovieVM model, HttpPostedFileBase image)
+        [ValidateAntiForgeryToken()]
+        public ActionResult Update(MovieVM model, HttpPostedFileBase image)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return View(model);
-                }
 
+            if (image != null)
+                if (!ApplicationSettings.AllowedExtensions.Contains(Path.GetExtension(image.FileName).ToLower()))
+                    ModelState.AddModelError("", "Invalid file extension. Acceptable ");
+
+
+            if (ModelState.IsValid)
+            {
                 Mapper.Initialize(cfg => { cfg.CreateMap<MovieVM, MovieDTO>(); });
                 MovieDTO res = Mapper.Map<MovieVM, MovieDTO>(model);
                 res.UserId = User.Identity.GetUserId();
-
                 if (image != null)
                 {
-                    res.PosterURL = SaveImage(image);
+                    res.PosterURL = SaveImage(image); ;
                 }
-
-                DB.MovieService.CreateMovie(res);
+                if (res.Id == 0)
+                    DB.MovieService.CreateMovie(res);
+                else
+                    DB.MovieService.UpdateMovie(res);
 
                 return RedirectToAction("Index");
             }
-            catch
-            {
-                return new HttpStatusCodeResult(500);
-            }
-        }
-        [Authorize]
-        public ActionResult Edit(int id)
-        {
-            try
-            {
-                var item = DB.MovieService.GetMovie(id);
 
-                if (item == null)
-                    return HttpNotFound();
-
-                Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
-                MovieVM res = Mapper.Map<MovieDTO, MovieVM>(item);
-
-                return View(res);
-            }
-            catch
-            {
-                return new HttpStatusCodeResult(500);
-            }
+            return View(model);
         }
 
-        [HttpPost]
-        [Authorize]
-        public ActionResult Edit(MovieVM model, HttpPostedFileBase image)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return View(model);
-                }
 
-                Mapper.Initialize(cfg => { cfg.CreateMap<MovieVM, MovieDTO>(); });
-                MovieDTO res = Mapper.Map<MovieVM, MovieDTO>(model);
 
-                if (image != null)
-                {
-                    res.PosterURL = SaveImage(image);
-                }
+        //[HttpGet]
+        //[Authorize]
+        //public ActionResult Create()
+        //{
+        //    return View();
+        //}
+        //[HttpPost]
+        //[Authorize]
+        //[ValidateAntiForgeryToken()]
+        //public ActionResult Create(MovieVM model, HttpPostedFileBase image)
+        //{
 
-                DB.MovieService.UpdateMovie(res);
+        //    if (image != null)
+        //        if (ApplicationSettings.AllowedExtensions.Contains(Path.GetExtension(image.FileName)))
+        //            ModelState.AddModelError("", "Invalid file extension. Acceptable ");
 
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return new HttpStatusCodeResult(500);
-            }
-        }
+
+        //    if (ModelState.IsValid)
+        //    {
+
+        //        Mapper.Initialize(cfg => { cfg.CreateMap<MovieVM, MovieDTO>(); });
+        //        MovieDTO res = Mapper.Map<MovieVM, MovieDTO>(model);
+        //        res.UserId = User.Identity.GetUserId();
+
+        //        res.PosterURL = SaveImage(image); ;
+
+        //        DB.MovieService.CreateMovie(res);
+
+        //        return RedirectToAction("Index");
+        //    }
+        //    return View(model);
+        //}
+        
+
+
+        //[Authorize]
+        //public ActionResult Edit(int id)
+        //{
+
+        //    var item = DB.MovieService.GetMovie(id);
+
+        //    if (item == null)
+        //        return HttpNotFound();
+
+        //    Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
+        //    MovieVM res = Mapper.Map<MovieDTO, MovieVM>(item);
+
+        //    return View(res);
+
+        //}
+
+        //[HttpPost]
+        //[Authorize]
+        //[ValidateAntiForgeryToken()]
+        //public ActionResult Edit(MovieVM model, HttpPostedFileBase image)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return View(model);
+        //    }
+
+        //    Mapper.Initialize(cfg => { cfg.CreateMap<MovieVM, MovieDTO>(); });
+        //    MovieDTO res = Mapper.Map<MovieVM, MovieDTO>(model);
+
+        //    if (image != null)
+        //    {
+        //        res.PosterURL = SaveImage(image);
+        //    }
+
+        //    DB.MovieService.UpdateMovie(res);
+
+        //    return RedirectToAction("Index");
+
+        //}
 
         public ActionResult Delete(int id)
         {
-            try
-            {
-                var item = DB.MovieService.GetMovie(id);
+            var item = DB.MovieService.GetMovie(id);
 
-                if (item == null)
-                    return HttpNotFound();
+            if (item == null)
+                return HttpNotFound();
 
-                DB.MovieService.DeleteMovie(id);
-
+            if (item.UserId != User.Identity.GetUserId())
                 return RedirectToAction("Index");
-            }
-            catch
-            {
-                return new HttpStatusCodeResult(500);
-            }
+
+            DB.MovieService.DeleteMovie(id);
+
+            return RedirectToAction("Index");
+
         }
 
         public ActionResult Info(int id)
         {
-            try
-            {
-                var item = DB.MovieService.GetMovie(id);
+            var item = DB.MovieService.GetMovie(id);
 
-                if (item == null)
-                    return HttpNotFound();
+            if (item == null)
+                return HttpNotFound();
 
-                if (Request.IsAuthenticated)
-                    ViewBag.UserId = User.Identity.GetUserId();
+            if (Request.IsAuthenticated)
+                ViewBag.UserId = User.Identity.GetUserId();
 
-                Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
-                MovieVM res = Mapper.Map<MovieDTO, MovieVM>(item);
+            Mapper.Initialize(cfg => { cfg.CreateMap<MovieDTO, MovieVM>(); });
+            MovieVM res = Mapper.Map<MovieDTO, MovieVM>(item);
 
-                res.User = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(res.UserId).UserName;
-                return View(res);
-            }
-            catch
-            {
-                return new HttpStatusCodeResult(500);
-            }
+            res.User = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(res.UserId).UserName;
+            return View(res);
+
         }
 
         string SaveImage(HttpPostedFileBase image)
         {
             string res = "";
-            var allowedExtensions = new[] { ".Jpg", ".png", ".jpg", "jpeg" };
             var fileName = Path.GetFileName(image.FileName);
             var ext = Path.GetExtension(image.FileName);
-            if (allowedExtensions.Contains(ext))
-            {
-                string name = Path.GetFileNameWithoutExtension(fileName);
-                string myfile = String.Format("{0}_{1}{2}", name, Guid.NewGuid(), ext);
-                string path = Path.Combine(@"\Img", myfile);
-                WebImage img = new WebImage(image.InputStream);
+            string name = Path.GetFileNameWithoutExtension(fileName);
+            string myfile = String.Format("{0}_{1}{2}", name, Guid.NewGuid(), ext);
+            string path = Path.Combine(@"\Img", myfile);
+            WebImage img = new WebImage(image.InputStream);
 
-                string size = ApplicationSettings.MovieImageSize;
-                int w = Int32.Parse(size.Split('*')[0]);
-                int h = Int32.Parse(size.Split('*')[0]);
+            string size = ApplicationSettings.MovieImageSize;
+            int w = Int32.Parse(size.Split('*')[0]);
+            int h = Int32.Parse(size.Split('*')[0]);
 
-                if (img.Width > w)
-                    img.Resize(w, h);
-                res = path;
-                img.Save(Server.MapPath(path));
-            }
+            if (img.Width > w)
+                img.Resize(w, h);
+            res = path;
+            img.Save(Server.MapPath(path));
+
             return res;
         }
     }

@@ -18,6 +18,16 @@ namespace Cinema.Utils
                 return ConfigurationManager.AppSettings["MovieImageSize"].ToString();
             }
         }
+        public static string AllowedExtensions
+        {
+            get
+            {
+                if (ConfigurationManager.AppSettings["AllowedExtensions"] == null)
+                    return ".png , .jpg , jpeg";
+
+                return ConfigurationManager.AppSettings["AllowedExtensions"].ToString();
+            }
+        }
         public static int MoviesPageSize
         {
             get

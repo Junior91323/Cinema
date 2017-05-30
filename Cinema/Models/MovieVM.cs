@@ -10,22 +10,23 @@ namespace Cinema.Models
     {
         public int Id { get; set; }
         [Required]
-        [Display(Name = "Название")]
+        [Display(Name = "Title")]
         public string Title { get; set; }
         [Required]
-        [Display(Name = "Описание")]
+        [Display(Name = "Description")]
         public string Description { get; set; }
         [Required]
-        [Display(Name = "Год")]
-        public DateTime Year { get; set; }
+        [Display(Name = "Year")]
+        [RegularExpression("^[0-9]{4,4}$", ErrorMessage = "Count must be a natural number")]
+        public int Year { get; set; }
         [Required]
-        [Display(Name = "Режиссёр")]
+        [Display(Name = "Producer")]
         public string Producer { get; set; }
         
         public string PosterURL { get; set; }
         public string UserId { get; set; }
 
-        [Display(Name = "Автор")]
+        [Display(Name = "Author")]
         public string User{ get; set; }
 
         public DateTime CreatedDate { get; set; }

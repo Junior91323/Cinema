@@ -7,8 +7,10 @@
 
     <h2>Edit</h2>
 
-    @using (Html.BeginForm("Edit", "Movies", FormMethod.Post, new { Class = "form-horizontal", enctype = "multipart/form-data" }))
+    @using (Html.BeginForm("Update", "Movies", FormMethod.Post, new { Class = "form-horizontal", enctype = "multipart/form-data" }))
     {
+        @Html.AntiForgeryToken();
+
         @Html.HiddenFor(m => m.Id);
         @Html.HiddenFor(m => m.PosterURL);
 

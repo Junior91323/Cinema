@@ -13,7 +13,7 @@ namespace Cinema.DAL.Entities
         public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public DateTime Year { get; set; }
+        public int Year { get; set; }
         public string Producer { get; set; }
         public string PosterURL { get; set; }
         [StringLength(128)]

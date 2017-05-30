@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Cinema.DAL.Entities;
 using Cinema.DAL.EF;
 using System.Data.Entity;
+using System.Linq.Expressions;
 
 namespace Cinema.DAL.Repositories
 {
@@ -32,9 +33,10 @@ namespace Cinema.DAL.Repositories
                 DB.Movies.Remove(item);
         }
 
-        public IEnumerable<Movie> Find(Func<Movie, bool> predicate)
+        public IQueryable<Movie> Find(Expression<Func<Movie, Boolean>> predicate)
         {
-            IEnumerable<Movie> items = DB.Movies.Where(predicate);
+            IQueryable<Movie> items = DB.Movies;
+            items = items.Where(predicate);
             return items;
         }
 
