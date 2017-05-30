@@ -74,7 +74,7 @@ namespace Cinema.Controllers
 
             if (image != null)
                 if (!ApplicationSettings.AllowedExtensions.Contains(Path.GetExtension(image.FileName).ToLower()))
-                    ModelState.AddModelError("", "Invalid file extension. Acceptable ");
+                    ModelState.AddModelError("", "Invalid file extension. Acceptable " + ApplicationSettings.AllowedExtensions);
 
             if (ModelState.IsValid)
             {
